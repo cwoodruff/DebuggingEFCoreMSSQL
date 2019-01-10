@@ -22,14 +22,14 @@ namespace BaseballStats.Controllers
         // GET: HallOfFames
         public async Task<IActionResult> Index()
         {
-//            SELECT DISTINCT People.nameFirst, People.nameLast, PlayerBattingTotals.HR
-//                FROM  Batting
-//             INNER JOIN HallOfFame ON Batting.playerID = HallOfFame.playerID
-//             INNER JOIN People ON Batting.playerID = People.playerID AND HallOfFame.playerID = People.playerID
-//             INNER JOIN Teams ON Batting.teamID = Teams.teamID AND Batting.lgID = Teams.lgID AND Batting.yearID = Teams.yearID
-//             INNER JOIN PlayerBattingTotals ON Batting.playerID = PlayerBattingTotals.playerID
-//            WHERE (PlayerBattingTotals.HR > 500)
-//            ORDER BY PlayerBattingTotals.HR DESC
+//            SELECT DISTINCT [plp].[nameFirst], [plp].[nameLast], [tf].[franchName] AS [Franchise]
+//            FROM [SeriesPost] AS [sp]
+//            INNER JOIN [Teams] AS [t] ON (([sp].[teamIDwinner] = [t].[teamID]) AND ([sp].[lgIDwinner] = [t].[lgID])) AND ([sp].[yearID] = [t].[yearID])
+//            INNER JOIN [TeamsFranchises] AS [tf] ON [t].[franchID] = [tf].[franchID]
+//            INNER JOIN [Pitching] AS [p] ON (([t].[teamID] = [p].[teamID]) AND ([t].[lgID] = [p].[lgID])) AND ([t].[yearID] = [p].[yearID])
+//            INNER JOIN [People] AS [plp] ON [p].[playerID] = [plp].[playerID]
+//            WHERE ([sp].[round] = N'WS') AND ([sp].[yearID] = CAST(2018 AS smallint))
+//            ORDER BY [plp].[nameLast]
 
             var homeRunLeaders = await (from b in _context.Batting
                 join hf in _context.HallOfFame on b.PlayerId equals hf.PlayerId

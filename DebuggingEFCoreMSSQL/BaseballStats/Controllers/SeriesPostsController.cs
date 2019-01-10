@@ -21,15 +21,14 @@ namespace BaseballStats.Controllers
         // GET: SeriesPosts
         public async Task<IActionResult> Index()
         {
-//            SELECT DISTINCT TeamsFranchises.franchName, People.nameFirst, People.nameLast
-//                FROM  SeriesPost INNER JOIN
-//                Teams ON SeriesPost.teamIDwinner = Teams.teamID AND SeriesPost.lgIDwinner = Teams.lgID AND SeriesPost.yearID = Teams.yearID INNER JOIN
-//            TeamsFranchises ON Teams.franchID = TeamsFranchises.franchID INNER JOIN
-//            Pitching ON Teams.teamID = Pitching.teamID AND Teams.lgID = Pitching.lgID AND Teams.yearID = Pitching.yearID INNER JOIN
-//            People ON Pitching.playerID = People.playerID
-//            WHERE SeriesPost.yearID = 2018 AND
-//            SeriesPost.round = 'WS'
-//            ORDER BY People.nameLast
+//            SELECT DISTINCT [plp].[nameFirst], [plp].[nameLast], [tf].[franchName] AS [Franchise]
+//            FROM [SeriesPost] AS [sp]
+//            INNER JOIN [Teams] AS [t] ON (([sp].[teamIDwinner] = [t].[teamID]) AND ([sp].[lgIDwinner] = [t].[lgID])) AND ([sp].[yearID] = [t].[yearID])
+//            INNER JOIN [TeamsFranchises] AS [tf] ON [t].[franchID] = [tf].[franchID]
+//            INNER JOIN [Pitching] AS [p] ON (([t].[teamID] = [p].[teamID]) AND ([t].[lgID] = [p].[lgID])) AND ([t].[yearID] = [p].[yearID])
+//            INNER JOIN [People] AS [plp] ON [p].[playerID] = [plp].[playerID]
+//            WHERE ([sp].[round] = N'WS') AND ([sp].[yearID] = CAST(2018 AS smallint))
+//            ORDER BY [plp].[nameLast]
                 
             var winningPitchers = await (from sp in _context.SeriesPost
                     join t in _context.Teams on new {A = sp.TeamIdwinner, B = sp.LgIdwinner, C = sp.YearId}
