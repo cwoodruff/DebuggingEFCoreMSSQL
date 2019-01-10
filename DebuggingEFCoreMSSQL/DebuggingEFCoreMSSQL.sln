@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.271
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseballStats", "BaseballStats\BaseballStats.csproj", "{1EF60175-6CF0-4BE0-87E5-5E3165D5FBA6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chinook", "Chinook\Chinook.csproj", "{042FEA18-2E83-4C2B-90CA-995B2428283E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1EF60175-6CF0-4BE0-87E5-5E3165D5FBA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EF60175-6CF0-4BE0-87E5-5E3165D5FBA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EF60175-6CF0-4BE0-87E5-5E3165D5FBA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EF60175-6CF0-4BE0-87E5-5E3165D5FBA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{042FEA18-2E83-4C2B-90CA-995B2428283E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{042FEA18-2E83-4C2B-90CA-995B2428283E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{042FEA18-2E83-4C2B-90CA-995B2428283E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{042FEA18-2E83-4C2B-90CA-995B2428283E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D5B36CF4-CB2E-4EC8-8AA2-7F027A90E5F6}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,50 @@
+﻿@model IEnumerable<BaseballStats.Models.SeriesPost>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Wins)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Losses)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Ties)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Teams)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TeamsNavigation)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Wins)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Losses)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Ties)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Teams.TeamId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TeamsNavigation.TeamId)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

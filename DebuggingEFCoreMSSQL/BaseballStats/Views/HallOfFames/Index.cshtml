@@ -1,0 +1,37 @@
+﻿@model IEnumerable<BaseballStats.Models.HomeRunLeaders>
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.NameFirst)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NameLast)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Hr)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.NameFirst)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NameLast)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Hr)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
