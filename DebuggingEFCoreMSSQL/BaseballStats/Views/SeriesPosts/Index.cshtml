@@ -1,4 +1,4 @@
-﻿@model IEnumerable<BaseballStats.Models.SeriesPost>
+﻿@model IEnumerable<BaseballStats.Models.WinningPitchers>
 
 @{
     ViewData["Title"] = "Index";
@@ -10,19 +10,13 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Wins)
+                @Html.DisplayNameFor(model => model.NameFirst)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Losses)
+                @Html.DisplayNameFor(model => model.NameLast)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Ties)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Teams)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TeamsNavigation)
+                @Html.DisplayNameFor(model => model.Franchise)
             </th>
         </tr>
     </thead>
@@ -30,19 +24,13 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Wins)
+                @Html.DisplayFor(modelItem => item.NameFirst)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Losses)
+                @Html.DisplayFor(modelItem => item.NameLast)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Ties)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Teams.TeamId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TeamsNavigation.TeamId)
+                @Html.DisplayFor(modelItem => item.Franchise)
             </td>
         </tr>
 }
