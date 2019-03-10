@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BaseballStats.Models;
-using Remotion.Linq.Clauses;
 
 namespace BaseballStats.Controllers
 {
@@ -40,6 +36,11 @@ namespace BaseballStats.Controllers
                 where bt.Hr > 500
                 orderby bt.Hr descending
                 select new HomeRunLeaders {NameFirst = p.NameFirst, NameLast = p.NameLast, Hr = bt.Hr})
+                .TagWith("Description: Query for All Hitters with 500 Home Runs")
+                .TagWith("Query located: BaseballStats.Controllers.HallOfFamesController.Index() method")
+                .TagWith(
+                    @"Parameters:
+                    None")
                 .Distinct().ToListAsync();
                 
             return View(homeRunLeaders);

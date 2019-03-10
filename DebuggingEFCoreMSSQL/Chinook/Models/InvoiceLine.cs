@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Chinook.Models
+﻿namespace Chinook.Models
 {
     public partial class InvoiceLine
     {

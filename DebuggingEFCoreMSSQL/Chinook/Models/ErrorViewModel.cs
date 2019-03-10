@@ -1,5 +1,3 @@
-using System;
-
 namespace Chinook.Models
 {
     public class ErrorViewModel

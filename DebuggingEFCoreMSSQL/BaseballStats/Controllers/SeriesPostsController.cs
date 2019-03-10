@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BaseballStats.Models;
 
@@ -40,6 +37,11 @@ namespace BaseballStats.Controllers
                     where sp.Round == "WS" && sp.YearId == 2018
                     orderby plp.NameLast
                     select new WinningPitchers {NameFirst = plp.NameFirst, NameLast = plp.NameLast, Franchise = tf.FranchName})
+                .TagWith("Description: Query for Players of the 2018 World Series Champions")
+                .TagWith("Query located: BaseballStats.Controllers.SeriesPostsController.Index() method")
+                .TagWith(
+                    @"Parameters:
+                    None")
                 .Distinct().ToListAsync();
                 
             return View(winningPitchers);

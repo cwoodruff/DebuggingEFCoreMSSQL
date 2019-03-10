@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace BaseballStats.Models
+﻿namespace BaseballStats.Models
 {
     public partial class AwardsManagers
     {

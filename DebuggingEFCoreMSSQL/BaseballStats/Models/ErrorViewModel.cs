@@ -1,5 +1,3 @@
-using System;
-
 namespace BaseballStats.Models
 {
     public class ErrorViewModel
