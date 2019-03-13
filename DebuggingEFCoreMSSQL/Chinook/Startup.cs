@@ -28,7 +28,7 @@ namespace Chinook
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
             
-            var connection = Configuration.GetConnectionString("BaseballStatsDb");
+            var connection = Configuration.GetConnectionString("ChinookDb");
             services.AddDbContextPool<ChinookContext>(options => options.UseSqlServer(connection));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
