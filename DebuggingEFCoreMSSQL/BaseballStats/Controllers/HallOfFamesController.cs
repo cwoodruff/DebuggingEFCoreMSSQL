@@ -18,14 +18,14 @@ namespace BaseballStats.Controllers
         // GET: HallOfFames
         public async Task<IActionResult> Index()
         {
-//            SELECT DISTINCT [plp].[nameFirst], [plp].[nameLast], [tf].[franchName] AS [Franchise]
-//            FROM [SeriesPost] AS [sp]
-//            INNER JOIN [Teams] AS [t] ON (([sp].[teamIDwinner] = [t].[teamID]) AND ([sp].[lgIDwinner] = [t].[lgID])) AND ([sp].[yearID] = [t].[yearID])
-//            INNER JOIN [TeamsFranchises] AS [tf] ON [t].[franchID] = [tf].[franchID]
-//            INNER JOIN [Pitching] AS [p] ON (([t].[teamID] = [p].[teamID]) AND ([t].[lgID] = [p].[lgID])) AND ([t].[yearID] = [p].[yearID])
-//            INNER JOIN [People] AS [plp] ON [p].[playerID] = [plp].[playerID]
-//            WHERE ([sp].[round] = N'WS') AND ([sp].[yearID] = CAST(2018 AS smallint))
-//            ORDER BY [plp].[nameLast]
+//              SELECT DISTINCT [p].[nameFirst], [p].[nameLast], [bt].[Hr]
+//              FROM [Batting] AS [b]
+//              INNER JOIN [HallOfFame] AS [hf] ON [b].[playerID] = [hf].[playerID]
+//              INNER JOIN [People] AS [p] ON [b].[playerID] = [p].[playerID]
+//              INNER JOIN [Teams] AS [t] ON (([b].[teamID] = [t].[teamID]) AND ([b].[lgID] = [t].[lgID])) AND ([b].[yearID] = [t].[yearID])
+//              INNER JOIN [PlayerBattingTotals] AS [bt] ON [b].[playerID] = [bt].[PlayerId]
+//              WHERE [bt].[Hr] > 500
+//              ORDER BY [bt].[Hr] DESC
 
             var homeRunLeaders = await (from b in _context.Batting
                 join hf in _context.HallOfFame on b.PlayerId equals hf.PlayerId
