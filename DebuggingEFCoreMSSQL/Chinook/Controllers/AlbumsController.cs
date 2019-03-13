@@ -21,8 +21,13 @@ namespace Chinook.Controllers
         // GET: Albums
         public async Task<IActionResult> Index()
         {
-            var chinookContext = _context.Album.Include(a => a.Artist);
-            return View(await chinookContext.ToListAsync());
+            var albums = _context.Album.Include(a => a.Artist)
+                .TagWith("Description: Query for Albums")
+                .TagWith("Query located: Chinook.Controllers.AlbumsController.Index() method")
+                .TagWith(
+                    @"Parameters:
+                    None");
+            return View(await albums.ToListAsync());
         }
     }
 }

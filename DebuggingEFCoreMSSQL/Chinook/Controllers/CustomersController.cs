@@ -21,7 +21,12 @@ namespace Chinook.Controllers
         // GET: Customers
         public async Task<IActionResult> Index()
         {
-            var chinookContext = _context.Customer.Include(c => c.SupportRep);
+            var chinookContext = _context.Customer.Include(c => c.SupportRep)
+                .TagWith("Description: Query for Customers")
+                .TagWith("Query located: Chinook.Controllers.CustomersController.Index() method")
+                .TagWith(
+                    @"Parameters:
+                    None");
             return View(await chinookContext.ToListAsync());
         }
     }
