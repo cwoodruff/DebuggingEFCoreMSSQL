@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace BaseballStats
 {
@@ -27,9 +28,11 @@ namespace BaseballStats
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-            
+
             var connection = Configuration.GetConnectionString("BaseballStatsDb");
-            services.AddDbContextPool<BaseballStatsContext>(options => options.UseSqlServer(connection));
+            services.AddDbContextPool<BaseballStatsContext>(options => options.UseSqlServer(connection)
+                .UseLoggerFactory(new LoggerFactory().AddConsole((s, l) =>
+                    l == LogLevel.Information && !s.EndsWith("Connection"))));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
@@ -55,8 +58,8 @@ namespace BaseballStats
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    "default",
+                    "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

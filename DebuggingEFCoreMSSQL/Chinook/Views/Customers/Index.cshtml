@@ -87,6 +87,9 @@
             <td>
                 @Html.DisplayFor(modelItem => item.SupportRep.FirstName)
             </td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.CustomerId">Details</a>
+            </td>
         </tr>
 }
     </tbody>
