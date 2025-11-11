@@ -1,0 +1,79 @@
+@page
+@model BadBookStore.Web.Pages.Admin.CompareModel
+@{
+    ViewData["Title"] = "Compare Mode";
+}
+
+<h1>Compare Mode</h1>
+<p>This runs selected demo queries twice: baseline → apply fixes → fixed. It then rolls back by default.</p>
+
+<form method="post">
+  <fieldset>
+    <legend>Choose queries</legend>
+    @for (int i = 1; i <= 8; i++)
+    {
+        <label style="display:block">
+          <input type="checkbox" name="Selected" value="@i" checked /> Q@i
+        </label>
+    }
+  </fieldset>
+
+  <div style="margin-top:1rem">
+    <label>
+      <input type="checkbox" name="KeepFixes" value="true" />
+      Keep fixes applied after compare (not recommended)
+    </label>
+  </div>
+
+  <div style="margin-top:1rem">
+    <button class="btn btn-primary" type="submit">Run Compare</button>
+  </div>
+</form>
+
+@if (Model.Results?.Any() == true)
+{
+  <h2 style="margin-top:2rem">Results</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Query</th>
+        <th>Baseline ms</th>
+        <th>Fixed ms</th>
+        <th>Δ ms</th>
+        <th>Speedup×</th>
+        <th>Count</th>
+      </tr>
+    </thead>
+    <tbody>
+    @foreach (var r in Model.Results)
+    {
+      <tr>
+        <td>Q@r.Q</td>
+        <td>@r.BaselineMs</td>
+        <td>@r.FixedMs</td>
+        <td>@(r.BaselineMs - r.FixedMs)</td>
+        <td>@(r.FixedMs == 0 ? "∞" : (r.BaselineMs / (double)r.FixedMs).ToString("0.00"))</td>
+        <td>@r.Count</td>
+      </tr>
+      <tr>
+        <td colspan="6">
+          <details>
+            <summary>Sample (baseline)</summary>
+            <pre>@r.BaselineSampleJson</pre>
+          </details>
+          <details style="margin-top:.5rem">
+            <summary>Sample (fixed)</summary>
+            <pre>@r.FixedSampleJson</pre>
+          </details>
+          <details style="margin-top:.5rem">
+            <summary>Query shape</summary>
+            <pre>@r.SqlShape</pre>
+          </details>
+        </td>
+      </tr>
+    }
+    </tbody>
+  </table>
+}
+
+<p style="margin-top:2rem"><a asp-page="/Admin/Fixes">Admin: Apply/Rollback Fixes</a> · <a asp-page="/Index">Home</a></p>

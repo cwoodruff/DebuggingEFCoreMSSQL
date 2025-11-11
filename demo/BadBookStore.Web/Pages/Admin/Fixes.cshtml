@@ -1,0 +1,40 @@
+@page
+@model BadBookStore.Web.Pages.Admin.FixesModel
+@{
+    ViewData["Title"] = "Performance Fixes";
+}
+
+<h1>Performance Fixes</h1>
+<p>Apply or rollback “fixes” (indexes & computed columns) to compare query behavior.</p>
+
+<form method="post" asp-page-handler="Apply">
+    <button class="btn btn-primary">Apply Fixes (V1)</button>
+</form>
+
+<form method="post" asp-page-handler="Rollback" style="margin-top:1rem">
+    <button class="btn btn-secondary">Rollback Fixes (V1)</button>
+</form>
+
+<form method="post" asp-page-handler="UpdateStats" style="margin-top:1rem">
+    <button class="btn btn-outline-dark">Update Statistics</button>
+</form>
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div style="margin-top:1rem; padding:.75rem; border:1px solid #ccc">
+        <strong>Result:</strong>
+        <pre>@Model.Message</pre>
+    </div>
+}
+
+<h3 style="margin-top:2rem">Quick links to demo queries</h3>
+<ol>
+    <li><a asp-page="/Demo/Index" asp-route-q="1">Q1: Orders by CustomerEmail + string date</a></li>
+    <li><a asp-page="/Demo/Index" asp-route-q="2">Q2: Reviews ↔ Books by Title</a></li>
+    <li><a asp-page="/Demo/Index" asp-route-q="3">Q3: Orders ↔ OrderLines</a></li>
+    <li><a asp-page="/Demo/Index" asp-route-q="4">Q4: Inventory by BookISBN</a></li>
+    <li><a asp-page="/Demo/Index" asp-route-q="5">Q5: CategoryCsv LIKE scans</a></li>
+    <li><a asp-page="/Demo/Index" asp-route-q="6">Q6: ActivityLog sort by string “date”</a></li>
+    <li><a asp-page="/Demo/Index" asp-route-q="7">Q7: FLOAT money math</a></li>
+    <li><a asp-page="/Demo/Index" asp-route-q="8">Q8: JSON-ish LIKE on Orders.Meta</a></li>
+</ol>

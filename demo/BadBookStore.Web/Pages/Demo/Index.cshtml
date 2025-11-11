@@ -1,0 +1,48 @@
+@page
+@model BadBookStore.Web.Pages.Demo.IndexModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<h2>@Model.Title</h2>
+
+<div style="margin:.25rem 0 1rem 0;">
+    @if (Model.FixesApplied)
+    {
+        <span style="
+          display:inline-block;padding:.25rem .5rem;border-radius:.5rem;
+          background:#e6ffed;border:1px solid #2ecc71;color:#1f7a3a;
+          font-size:.85rem;font-weight:600;">
+            Fixes: Applied
+        </span>
+    }
+    else
+    {
+        <span style="
+          display:inline-block;padding:.25rem .5rem;border-radius:.5rem;
+          background:#fff5f5;border:1px solid #ff6b6b;color:#8a1c1c;
+          font-size:.85rem;font-weight:600;">
+            Fixes: Baseline
+        </span>
+    }
+</div>
+
+<p><strong>Elapsed:</strong> @Model.ElapsedMs ms</p>
+<p><strong>Row Count:</strong> @Model.Count</p>
+
+@if (!string.IsNullOrWhiteSpace(Model.SqlShape))
+{
+    <details>
+        <summary>Query shape (for discussion)</summary>
+        <pre>@Model.SqlShape</pre>
+    </details>
+}
+
+@if (Model.Sample is not null)
+{
+    <h3>Sample</h3>
+    <pre>@System.Text.Json.JsonSerializer.Serialize(Model.Sample, new System.Text.Json.JsonSerializerOptions { WriteIndented = true })</pre>
+}
+
+<p><a asp-page="/Index">Back</a></p>
+>

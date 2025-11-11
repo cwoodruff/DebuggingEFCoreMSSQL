@@ -1,10 +1,20 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "BadBookStore Demo";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h1>BadBookStore EF Core 9 – Slow-on-purpose queries</h1>
+
+<p>Use the links below to run each demonstration query and view timing + sample results.</p>
+
+<ol>
+    <li><a asp-page="/Demo/Index" asp-route-q="1">Q1: Orders by CustomerEmail + date (string range)</a></li>
+    <li><a asp-page="/Demo/Index" asp-route-q="2">Q2: Reviews ↔ Books by Title join</a></li>
+    <li><a asp-page="/Demo/Index" asp-route-q="3">Q3: Orders ↔ OrderLines by OrderId (missing index)</a></li>
+    <li><a asp-page="/Demo/Index" asp-route-q="4">Q4: Inventory by BookISBN (string composite key)</a></li>
+    <li><a asp-page="/Demo/Index" asp-route-q="5">Q5: CategoryCsv LIKE scans</a></li>
+    <li><a asp-page="/Demo/Index" asp-route-q="6">Q6: ActivityLog sort by string “date”</a></li>
+    <li><a asp-page="/Demo/Index" asp-route-q="7">Q7: FLOAT money math rounding</a></li>
+    <li><a asp-page="/Demo/Index" asp-route-q="8">Q8: JSON-ish LIKE in Orders.Meta</a></li>
+</ol>
