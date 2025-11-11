@@ -1,63 +1,198 @@
-using BadBookStore.Demo.Models;
+﻿using System;
+using System.Collections.Generic;
+using BadBookStore.Web.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BadBookStore.Web.Data;
 
-public class BadBookStoreContext(DbContextOptions<BadBookStoreContext> options) : DbContext(options)
+public partial class BadBookStoreContext : DbContext
 {
-    public DbSet<Author> Authors => Set<Author>();
-    public DbSet<Book> Books => Set<Book>();
-    public DbSet<BookAuthor> BookAuthors => Set<BookAuthor>(); // keyless
-    public DbSet<Customer> Customers => Set<Customer>();
-    public DbSet<Order> Orders => Set<Order>();
-    public DbSet<OrderLine> OrderLines => Set<OrderLine>();
-    public DbSet<Review> Reviews => Set<Review>();
-    public DbSet<Inventory> Inventory => Set<Inventory>();
-    public DbSet<Payment> Payments => Set<Payment>();
-    public DbSet<Shipment> Shipments => Set<Shipment>();
-    public DbSet<Category> Categories => Set<Category>();
-    public DbSet<BookCategory> BookCategories => Set<BookCategory>(); // keyless
-    public DbSet<BookAttribute> BookAttributes => Set<BookAttribute>();
-    public DbSet<ActivityLog> ActivityLog => Set<ActivityLog>();
-
-    protected override void OnModelCreating(ModelBuilder mb)
+    public BadBookStoreContext()
     {
-        mb.Entity<Author>().ToTable("Authors").HasKey(x => x.AuthorId);
-        mb.Entity<Author>().Property(x => x.AuthorId).HasColumnType("nvarchar(36)");
-
-        mb.Entity<Book>().ToTable("Books").HasKey(x => x.ISBN);
-        mb.Entity<Book>().Property(x => x.ISBN).HasColumnType("nvarchar(20)");
-
-        mb.Entity<BookAuthor>().ToTable("BookAuthors").HasNoKey(); // table has no PK
-        mb.Entity<BookAuthor>().Property(x => x.BookTitle).HasColumnType("nvarchar(500)");
-
-        mb.Entity<Customer>().ToTable("Customers").HasKey(x => x.Email);
-        mb.Entity<Customer>().Property(x => x.Email).HasColumnType("nvarchar(320)");
-
-        mb.Entity<Order>().ToTable("Orders").HasKey(x => x.OrderId);
-        mb.Entity<Order>().Property(x => x.CustomerEmail).HasColumnType("nvarchar(320)");
-
-        mb.Entity<OrderLine>().ToTable("OrderLines").HasKey(x => x.OrderLineId);
-        mb.Entity<OrderLine>().Property(x => x.BookTitle).HasColumnType("nvarchar(500)");
-
-        mb.Entity<Review>().ToTable("Reviews").HasKey(x => x.ReviewId);
-        mb.Entity<Review>().Property(x => x.ISBN).HasColumnType("nvarchar(20)");
-
-        mb.Entity<Inventory>().ToTable("Inventory").HasKey(x => new { x.WarehouseCode, x.BookISBN });
-        mb.Entity<Inventory>().Property(x => x.WarehouseCode).HasColumnType("nvarchar(100)");
-        mb.Entity<Inventory>().Property(x => x.BookISBN).HasColumnType("nvarchar(20)");
-
-        mb.Entity<Payment>().ToTable("Payments").HasKey(x => x.PaymentId);
-        mb.Entity<Shipment>().ToTable("Shipments").HasKey(x => x.ShipmentId);
-
-        mb.Entity<Category>().ToTable("Categories").HasKey(x => x.CategoryId);
-
-        mb.Entity<BookCategory>().ToTable("BookCategory").HasNoKey(); // table has no PK
-        mb.Entity<BookCategory>().Property(x => x.ISBN).HasColumnType("nvarchar(20)");
-
-        mb.Entity<BookAttribute>().ToTable("BookAttributes").HasKey(x => x.AttributeId);
-        mb.Entity<ActivityLog>().ToTable("ActivityLog").HasKey(x => x.ActivityId);
-
-        // No FKs on purpose to mirror the broken schema
     }
+
+    public BadBookStoreContext(DbContextOptions<BadBookStoreContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<ActivityLog> ActivityLogs { get; set; }
+
+    public virtual DbSet<Author> Authors { get; set; }
+
+    public virtual DbSet<Book> Books { get; set; }
+
+    public virtual DbSet<BookAttribute> BookAttributes { get; set; }
+
+    public virtual DbSet<BookAuthor> BookAuthors { get; set; }
+
+    public virtual DbSet<BookCategory> BookCategories { get; set; }
+
+    public virtual DbSet<Category> Categories { get; set; }
+
+    public virtual DbSet<Customer> Customers { get; set; }
+
+    public virtual DbSet<Inventory> Inventories { get; set; }
+
+    public virtual DbSet<Order> Orders { get; set; }
+
+    public virtual DbSet<OrderLine> OrderLines { get; set; }
+
+    public virtual DbSet<Payment> Payments { get; set; }
+
+    public virtual DbSet<Review> Reviews { get; set; }
+
+    public virtual DbSet<Shipment> Shipments { get; set; }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ActivityLog>(entity =>
+        {
+            entity.HasKey(e => e.ActivityId);
+
+            entity.ToTable("ActivityLog");
+
+            entity.Property(e => e.Action).HasMaxLength(200);
+            entity.Property(e => e.Actor).HasMaxLength(500);
+            entity.Property(e => e.HappenedAt).HasMaxLength(30);
+            entity.Property(e => e.SubjectKey).HasMaxLength(500);
+            entity.Property(e => e.SubjectType).HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<Author>(entity =>
+        {
+            entity.Property(e => e.AuthorId).HasMaxLength(36);
+            entity.Property(e => e.CreatedDate).HasMaxLength(30);
+            entity.Property(e => e.DisplayName).HasMaxLength(400);
+            entity.Property(e => e.TwitterHandle).HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<Book>(entity =>
+        {
+            entity.HasKey(e => e.Isbn).IsClustered(false);
+
+            entity.Property(e => e.Isbn)
+                .HasMaxLength(20)
+                .HasColumnName("ISBN");
+            entity.Property(e => e.AuthorId).HasMaxLength(36);
+            entity.Property(e => e.CategoryCsv).HasMaxLength(2000);
+            entity.Property(e => e.CurrencyCode).HasMaxLength(10);
+            entity.Property(e => e.IsActive).HasMaxLength(1);
+            entity.Property(e => e.PublishedOn).HasMaxLength(30);
+            entity.Property(e => e.SubTitle).HasMaxLength(500);
+            entity.Property(e => e.Title).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<BookAttribute>(entity =>
+        {
+            entity.HasKey(e => e.AttributeId);
+
+            entity.Property(e => e.AttributeName).HasMaxLength(200);
+            entity.Property(e => e.AttributeType).HasMaxLength(100);
+            entity.Property(e => e.Isbn)
+                .HasMaxLength(20)
+                .HasColumnName("ISBN");
+        });
+
+        modelBuilder.Entity<BookAuthor>(entity =>
+        {
+            entity.HasNoKey();
+
+            entity.Property(e => e.AuthorDisplayName).HasMaxLength(400);
+            entity.Property(e => e.BookTitle).HasMaxLength(500);
+            entity.Property(e => e.Role).HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<BookCategory>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("BookCategory");
+
+            entity.Property(e => e.CategoryName).HasMaxLength(400);
+            entity.Property(e => e.Isbn)
+                .HasMaxLength(20)
+                .HasColumnName("ISBN");
+        });
+
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.Property(e => e.Name).HasMaxLength(400);
+            entity.Property(e => e.ParentCategoryName).HasMaxLength(400);
+        });
+
+        modelBuilder.Entity<Customer>(entity =>
+        {
+            entity.HasKey(e => e.Email);
+
+            entity.Property(e => e.Email).HasMaxLength(320);
+            entity.Property(e => e.BillingAddressLine).HasMaxLength(1000);
+            entity.Property(e => e.FullName).HasMaxLength(400);
+            entity.Property(e => e.MarketingOptIn).HasMaxLength(10);
+            entity.Property(e => e.Phone).HasMaxLength(100);
+            entity.Property(e => e.RegisteredOn).HasMaxLength(30);
+            entity.Property(e => e.ShippingAddressLine).HasMaxLength(1000);
+        });
+
+        modelBuilder.Entity<Inventory>(entity =>
+        {
+            entity.HasKey(e => new { e.WarehouseCode, e.BookIsbn });
+
+            entity.ToTable("Inventory");
+
+            entity.Property(e => e.WarehouseCode).HasMaxLength(100);
+            entity.Property(e => e.BookIsbn)
+                .HasMaxLength(20)
+                .HasColumnName("BookISBN");
+            entity.Property(e => e.LocationNote).HasMaxLength(500);
+            entity.Property(e => e.QuantityOnHand).HasMaxLength(50);
+            entity.Property(e => e.ReorderLevel).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.Property(e => e.CouponCode).HasMaxLength(100);
+            entity.Property(e => e.CustomerEmail).HasMaxLength(320);
+            entity.Property(e => e.OrderDate).HasMaxLength(30);
+            entity.Property(e => e.OrderStatus).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<OrderLine>(entity =>
+        {
+            entity.Property(e => e.BookTitle).HasMaxLength(500);
+            entity.Property(e => e.Currency).HasMaxLength(10);
+        });
+
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.Property(e => e.CardHolder).HasMaxLength(200);
+            entity.Property(e => e.CardLast4).HasMaxLength(10);
+            entity.Property(e => e.PaidCurrency).HasMaxLength(10);
+            entity.Property(e => e.PaidOn).HasMaxLength(30);
+        });
+
+        modelBuilder.Entity<Review>(entity =>
+        {
+            entity.Property(e => e.BookTitle).HasMaxLength(500);
+            entity.Property(e => e.CustomerEmail).HasMaxLength(320);
+            entity.Property(e => e.Isbn)
+                .HasMaxLength(20)
+                .HasColumnName("ISBN");
+            entity.Property(e => e.ReviewDate).HasMaxLength(30);
+        });
+
+        modelBuilder.Entity<Shipment>(entity =>
+        {
+            entity.Property(e => e.Carrier).HasMaxLength(100);
+            entity.Property(e => e.DeliveredOn).HasMaxLength(30);
+            entity.Property(e => e.ShipToAddressLine).HasMaxLength(1000);
+            entity.Property(e => e.ShippedOn).HasMaxLength(30);
+            entity.Property(e => e.Status).HasMaxLength(100);
+            entity.Property(e => e.TrackingNumber).HasMaxLength(200);
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

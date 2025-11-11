@@ -1,4 +1,4 @@
-using BadBookStore.Demo.Data;
+using BadBookStore.Web.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
