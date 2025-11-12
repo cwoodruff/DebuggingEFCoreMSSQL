@@ -31,17 +31,18 @@ public class IndexModel(BadBookStoreContext db) : PageModel
             case 1:
                 Title = "Q1: Orders by CustomerEmail + string date range";
                 // String compare + missing index on CustomerEmail
-                var q1Start = "2025-01-01";
+                var q1Start = "2023-01-01";
                 var q1End   = "2025-12-31";
                 var q1 = db.Orders
-                    .Where(o => o.CustomerEmail == "alice@example.com"
+                    .Where(o => o.CustomerEmail == "customer008@example.com"
                              && string.Compare(o.OrderDate!, q1Start) >= 0
-                             && string.Compare(o.OrderDate!, q1End)   <  0)
+                             && string.Compare(o.OrderDate!, q1End)   <  0
+                             && o.OrderStatus == "Completed")
                     .Select(o => new { o.OrderId, o.OrderDate, o.OrderTotal });
 
                 Count = await q1.CountAsync();
-                Sample = await q1.Take(5).ToListAsync();
-                SqlShape = "SELECT OrderId, OrderDate, OrderTotal FROM Orders WHERE CustomerEmail = N'alice@example.com' AND OrderDate >= N'2025-01-01' AND OrderDate < N'2025-12-31'";
+                Sample = await q1.Take(15).ToListAsync();
+                SqlShape = "SELECT OrderId, OrderDate, OrderTotal FROM Orders WHERE CustomerEmail = N'customer008@example.com' AND OrderDate >= N'2023-01-01' AND OrderDate < N'2025-12-31'";
                 break;
 
             case 2:
@@ -52,7 +53,7 @@ public class IndexModel(BadBookStoreContext db) : PageModel
                          select new { r.ReviewId, b.Isbn, b.Title, r.Rating };
 
                 Count = await q2.CountAsync();
-                Sample = await q2.Take(5).ToListAsync();
+                Sample = await q2.Take(15).ToListAsync();
                 SqlShape = "SELECT r.ReviewId, b.ISBN, b.Title, r.Rating FROM Reviews r JOIN Books b ON b.Title = r.BookTitle WHERE r.Rating >= 4";
                 break;
 
@@ -64,19 +65,19 @@ public class IndexModel(BadBookStoreContext db) : PageModel
                          select new { o.OrderId, ol.BookTitle, ol.Quantity, ol.UnitPrice };
 
                 Count = await q3.CountAsync();
-                Sample = await q3.Take(5).ToListAsync();
+                Sample = await q3.Take(15).ToListAsync();
                 SqlShape = "SELECT o.OrderId, ol.BookTitle, ol.Quantity, ol.UnitPrice FROM Orders o JOIN OrderLines ol ON ol.OrderId = o.OrderId WHERE o.OrderStatus = N'Completed'";
                 break;
 
             case 4:
                 Title = "Q4: Inventory by BookISBN (string composite clustered key)";
                 var q4 = db.Inventories
-                    .Where(i => i.BookIsbn == "978-1-4028-9462-6")
+                    .Where(i => i.BookIsbn == "978-1-4028-0009-9")
                     .Select(i => new { i.WarehouseCode, i.BookIsbn, i.QuantityOnHand });
 
                 Count = await q4.CountAsync();
-                Sample = await q4.Take(5).ToListAsync();
-                SqlShape = "SELECT WarehouseCode, BookISBN, QuantityOnHand FROM Inventory WHERE BookISBN = N'978-1-4028-9462-6'";
+                Sample = await q4.Take(15).ToListAsync();
+                SqlShape = "SELECT WarehouseCode, BookISBN, QuantityOnHand FROM Inventory WHERE BookISBN = N'978-1-4028-0009-9'";
                 break;
 
             case 5:
@@ -91,7 +92,7 @@ public class IndexModel(BadBookStoreContext db) : PageModel
                     .Select<Book, object>(b => new { b.Isbn, b.Title, b.CategoryCsv });
 
                 Count = await q5.CountAsync();
-                Sample = await q5.Take(5).ToListAsync();
+                Sample = await q5.Take(15).ToListAsync();
                 SqlShape = "SELECT ISBN, Title FROM Books WHERE CategoryCsv LIKE patterns around 'Programming'";
                 break;
 
@@ -102,8 +103,8 @@ public class IndexModel(BadBookStoreContext db) : PageModel
                     .Select(a => new { a.ActivityId, a.HappenedAt, a.Actor, a.Action });
 
                 Count = await q6.CountAsync();
-                Sample = await q6.Take(10).ToListAsync();
-                SqlShape = "SELECT TOP(10) * FROM ActivityLog ORDER BY HappenedAt DESC";
+                Sample = await q6.Take(15).ToListAsync();
+                SqlShape = "SELECT TOP(15) * FROM ActivityLog ORDER BY HappenedAt DESC";
                 break;
 
             case 7:
@@ -126,7 +127,7 @@ public class IndexModel(BadBookStoreContext db) : PageModel
                     .Select(o => new { o.OrderId, o.Meta });
 
                 Count = await q8.CountAsync();
-                Sample = await q8.Take(5).ToListAsync();
+                Sample = await q8.Take(15).ToListAsync();
                 SqlShape = "SELECT OrderId FROM Orders WHERE Meta LIKE N'%{\"source\":\"mobile\"}%'";
                 break;
 
