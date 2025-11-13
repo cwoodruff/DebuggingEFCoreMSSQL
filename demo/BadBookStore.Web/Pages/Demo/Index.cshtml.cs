@@ -96,7 +96,7 @@ public class IndexModel(BadBookStoreContext db) : PageModel
 
                 Count = await q5.CountAsync();
                 Sample = await q5.Take(15).ToListAsync();
-                SqlShape = "SELECT ISBN, Title FROM Books WHERE CategoryCsv LIKE patterns around 'Programming'";
+                SqlShape = "SELECT ISBN, Title FROM Books WHERE CategoryCsv LIKE 'Programming'";
                 break;
 
             case 6:
@@ -164,4 +164,82 @@ public class IndexModel(BadBookStoreContext db) : PageModel
         var result = await cmd.ExecuteScalarAsync();
         return result is int i && i == 1;
     }
+    
+    public IActionResult OnGetExplain(int q)
+    {
+        if (q == 0) return Content(string.Empty, "text/html");
+        var html = GetExplainHtml(q);
+        return Content(html, "text/html");
+    }
+    
+    private static string GetExplainHtml(int q) => q switch
+    {
+        1 => Block("Q1 — Orders by CustomerEmail + string date range", """
+            <p><strong>Demonstrates</strong> String dates (<code>NVARCHAR</code>) kill sargability; missing composite index.</p>
+            <p><strong>Query shape:</strong> <code>WHERE CustomerEmail='customer008@example.com' AND OrderDate &gt;= '2023-01-01' AND OrderDate &lt; '2025-12-31'</code></p>
+            <p><strong>Why slow:</strong> string compares + no (CustomerEmail, OrderDate) index =&gt; scans.</p>
+            <p><strong>Plan tells:</strong> clustered/index scan; high logical reads.</p>
+            <p><strong>Fix V1 effect:</strong> adds persisted <code>OrderDate_dt</code> + <code>IX_Orders_CustomerEmail_OrderDate_dt</code> =&gt; seeks.</p>
+            <p><strong>Real fix:</strong> store <code>datetime2</code>; index <code>(CustomerEmail, OrderDate)</code> with INCLUDEs.</p>
+        """),
+        2 => Block("Q2 — Reviews ↔ Books join by Title", """
+            <p><strong>Demonstrates</strong> Joining on non-unique, wide text; missing title index.</p>
+            <p><strong>Query shape:</strong> <code>JOIN Books b ON b.Title = r.BookTitle WHERE r.Rating &gt;= 4</code></p>
+            <p><strong>Why slow:</strong> wide/duplicate join key; no <code>Books(Title)</code> index =&gt; scans/hash.</p>
+            <p><strong>Plan tells:</strong> hash join, large memory grant; possible spills.</p>
+            <p><strong>Fix V1 effect:</strong> <code>IX_Books_Title</code> helps probes but design still weak.</p>
+            <p><strong>Real fix:</strong> join on stable key (<code>BookId</code>), enforce FKs.</p>
+        """),
+        3 => Block("Q3 — Orders ↔ OrderLines (missing child index)", """
+            <p><strong>Demonstrates</strong> No index on FK-like column <code>OrderLines(OrderId)</code>.</p>
+            <p><strong>Query shape:</strong> <code>JOIN OrderLines ol ON ol.OrderId = o.OrderId WHERE o.OrderStatus='Completed'</code></p>
+            <p><strong>Why slow:</strong> N+1 joins/scans on lines.</p>
+            <p><strong>Plan tells:</strong> nested loops + repeated scans / or hash with full scans.</p>
+            <p><strong>Fix V1 effect:</strong> <code>IX_OrderLines_OrderId</code> (covering) =&gt; seek + far fewer reads.</p>
+            <p><strong>Real fix:</strong> always index FKs; consider composite covering indexes.</p>
+        """),
+        4 => Block("Q4 — Inventory by BookISBN under string composite clustered key", """
+            <p><strong>Demonstrates</strong> Bad clustering: <code>(WarehouseCode, BookISBN)</code> NVARCHAR strings.</p>
+            <p><strong>Query shape:</strong> <code>WHERE BookISBN='978-1-4028-0009-9'</code></p>
+            <p><strong>Why slow:</strong> predicate on second key; no helper index =&gt; scans.</p>
+            <p><strong>Plan tells:</strong> clustered scan with residual predicate.</p>
+            <p><strong>Fix V1 effect:</strong> <code>IX_Inventory_BookISBN</code> =&gt; direct seek.</p>
+            <p><strong>Real fix:</strong> narrow clustered key (surrogate) + targeted secondaries.</p>
+        """),
+        5 => Block("Q5 — CategoryCsv LIKE scans (CSV anti-pattern)", """
+            <p><strong>Demonstrates</strong> CSV in a column makes membership tests unsargable.</p>
+            <p><strong>Query shape:</strong> boundary <code>LIKE</code> 'Programming'</p>
+            <p><strong>Why slow:</strong> engine can’t reason about sets in CSV; scans even with indexes.</p>
+            <p><strong>Fix V1 effect:</strong> none (on purpose) — shows limits of indexing.</p>
+            <p><strong>Real fix:</strong> normalize via <code>BookCategory</code> bridge and join.</p>
+        """),
+        6 => Block("Q6 — ActivityLog ordered by string ‘date’", """
+            <p><strong>Demonstrates</strong> Sorting by text date; no ordered access path.</p>
+            <p><strong>Query shape:</strong> <code>TOP(10) ... ORDER BY HappenedAt DESC</code></p>
+            <p><strong>Why slow:</strong> full sort; possible tempdb spills.</p>
+            <p><strong>Fix V1 effect:</strong> computed <code>HappenedAt_dt</code> + DESC index =&gt; ordered seek.</p>
+            <p><strong>Real fix:</strong> store <code>datetime2</code>; align indexes to read patterns.</p>
+        """),
+        7 => Block("Q7 — FLOAT money math (correctness, not speed)", """
+            <p><strong>Demonstrates</strong> <code>FLOAT</code> is imprecise for currency; totals vary.</p>
+            <p><strong>Query shape:</strong> <code>SUM(UnitPrice * Quantity) WHERE OrderId=12345</code></p>
+            <p><strong>Why bad:</strong> binary floating-point can’t represent many decimal fractions.</p>
+            <p><strong>Fix V1 effect:</strong> none — indexing can’t fix wrong math.</p>
+            <p><strong>Real fix:</strong> use <code>DECIMAL(19,4)</code> for money everywhere.</p>
+        """),
+        8 => Block("Q8 — JSON-ish LIKE probe in Orders.Meta", """
+            <p><strong>Demonstrates</strong> NVARCHAR(MAX) + leading <code>%LIKE%</code> forces scans.</p>
+            <p><strong>Query shape:</strong> <code>WHERE Meta LIKE '%{"}source{"}:"}mobile{"}%'</code></p>
+            <p><strong>Why slow:</strong> no stats on JSON attributes; large LOB scans.</p>
+            <p><strong>Fix V1 effect:</strong> persisted <code>Source = JSON_VALUE(Meta,'$.source')</code> + index; filter by <code>Source='mobile'</code>.</p>
+            <p><strong>Real fix:</strong> model important attributes as columns or computed projections.</p>
+        """),
+        _ => "<p>No details found.</p>"
+    };
+
+    private static string Block(string title, string body) =>
+$"""
+<h3 style="margin:0 0 .5rem 0">{title}</h3>
+{body}
+""";
 }

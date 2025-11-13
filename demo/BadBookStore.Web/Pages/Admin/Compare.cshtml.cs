@@ -145,7 +145,7 @@ public class CompareModel(BadBookStoreContext db) : PageModel
                 var count = await query.CountAsync();
                 var sample = await query.Take(5).ToListAsync();
                 return ("CategoryCsv LIKE scans", count, ToJson(sample),
-                    "SELECT ISBN, Title FROM Books WHERE CategoryCsv LIKE patterns around 'Programming'");
+                    "SELECT ISBN, Title FROM Books WHERE CategoryCsv LIKE 'Programming'");
             }
 
             case 6:
