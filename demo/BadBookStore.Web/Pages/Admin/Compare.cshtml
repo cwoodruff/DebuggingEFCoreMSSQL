@@ -1,7 +1,7 @@
 @page
 @model BadBookStore.Web.Pages.Admin.CompareModel
 @{
-    ViewData["Title"] = "Compare Mode";
+  ViewData["Title"] = "Compare Mode";
 }
 
 <h1>Compare Mode</h1>
@@ -10,17 +10,36 @@
 <form method="post">
   <fieldset>
     <legend>Choose queries</legend>
-    @for (int i = 1; i <= 8; i++)
-    {
-        <label style="display:block">
-          <input type="checkbox" name="Selected" value="@i" checked /> Q@i
-        </label>
-    }
+    <label style="display:block">
+      <input type="checkbox" name="Selected" value="1" checked/> Q1: Orders by CustomerEmail + date (string range)
+    </label>
+    <label style="display:block">
+      <input type="checkbox" name="Selected" value="2" checked/> Q2: Reviews ↔ Books by Title join
+    </label>
+    <label style="display:block">
+      <input type="checkbox" name="Selected" value="3" checked/> Q3: Orders ↔ OrderLines by OrderId (missing index)
+    </label>
+    <label style="display:block">
+      <input type="checkbox" name="Selected" value="4" checked/> Q4: Inventory by BookISBN (string composite key)
+    </label>
+    <label style="display:block">
+      <input type="checkbox" name="Selected" value="5" checked/> Q5: CategoryCsv LIKE scans
+    </label>
+    <label style="display:block">
+      <input type="checkbox" name="Selected" value="6" checked/> Q6: ActivityLog sort by string “date”
+    </label>
+    <label style="display:block">
+      <input type="checkbox" name="Selected" value="7" checked/> Q7: FLOAT money math rounding
+    </label>
+    <label style="display:block">
+      <input type="checkbox" name="Selected" value="8" checked/> Q8: JSON-ish LIKE in Orders.Meta
+    </label>
+
   </fieldset>
 
   <div style="margin-top:1rem">
     <label>
-      <input type="checkbox" name="KeepFixes" value="true" />
+      <input type="checkbox" name="KeepFixes" value="true"/>
       Keep fixes applied after compare (not recommended)
     </label>
   </div>
@@ -35,20 +54,20 @@
   <h2 style="margin-top:2rem">Results</h2>
   <table class="table">
     <thead>
-      <tr>
-        <th>Query</th>
-        <th>Baseline ms</th>
-        <th>Fixed ms</th>
-        <th>Δ ms</th>
-        <th>Speedup×</th>
-        <th>Count</th>
-      </tr>
+    <tr>
+      <th>Query</th>
+      <th>Baseline ms</th>
+      <th>Fixed ms</th>
+      <th>Δ ms</th>
+      <th>Speedup×</th>
+      <th>Count</th>
+    </tr>
     </thead>
     <tbody>
     @foreach (var r in Model.Results)
     {
       <tr>
-        <td>Q@r.Q</td>
+        <td>@r.QueryName</td>
         <td>@r.BaselineMs</td>
         <td>@r.FixedMs</td>
         <td>@(r.BaselineMs - r.FixedMs)</td>
@@ -76,4 +95,5 @@
   </table>
 }
 
-<p style="margin-top:2rem"><a asp-page="/Admin/Fixes">Admin: Apply/Rollback Fixes</a> · <a asp-page="/Index">Home</a></p>
+<p style="margin-top:2rem"><a asp-page="/Admin/Fixes">Admin: Apply/Rollback Fixes</a> · <a asp-page="/Index">Home</a>
+</p>

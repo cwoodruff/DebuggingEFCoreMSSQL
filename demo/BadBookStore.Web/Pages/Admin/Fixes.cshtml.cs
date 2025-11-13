@@ -12,7 +12,9 @@ public class FixesModel(BadBookStoreContext db) : PageModel
 {
     public string Message { get; private set; } = "";
 
-    public void OnGet() {}
+    public void OnGet()
+    {
+    }
 
     public async Task<IActionResult> OnPostApplyAsync()
     {
@@ -55,6 +57,7 @@ public class FixesModel(BadBookStoreContext db) : PageModel
             sb.AppendLine("ERROR:");
             sb.AppendLine(ex.Message);
         }
+
         return sb.ToString();
     }
 }

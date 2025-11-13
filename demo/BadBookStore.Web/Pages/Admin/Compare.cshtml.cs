@@ -10,15 +10,15 @@ namespace BadBookStore.Web.Pages.Admin;
 
 public class CompareModel(BadBookStoreContext db) : PageModel
 {
-    [BindProperty]
-    public List<int> Selected { get; set; } = new();
+    [BindProperty] public List<int> Selected { get; set; } = new();
 
-    [BindProperty]
-    public bool KeepFixes { get; set; }
+    [BindProperty] public bool KeepFixes { get; set; }
 
     public List<CompareResult>? Results { get; private set; }
 
-    public void OnGet() { }
+    public void OnGet()
+    {
+    }
 
     public async Task<IActionResult> OnPostAsync()
     {
@@ -63,9 +63,10 @@ public class CompareModel(BadBookStoreContext db) : PageModel
     private async Task<CompareResult> TimeOneAsync(int q)
     {
         var sw = Stopwatch.StartNew();
-        (int count, string sampleJson, string sqlShape) = await RunQueryAsync(q);
+        (string Name, int count, string sampleJson, string sqlShape) = await RunQueryAsync(q);
         sw.Stop();
         return new CompareResult(
+            QueryName: Name,
             Q: q,
             BaselineMs: sw.ElapsedMilliseconds,
             FixedMs: 0,
@@ -76,58 +77,58 @@ public class CompareModel(BadBookStoreContext db) : PageModel
         );
     }
 
-    private async Task<(int count, string sampleJson, string sqlShape)> RunQueryAsync(int q)
+    private async Task<(string Name, int count, string sampleJson, string sqlShape)> RunQueryAsync(int q)
     {
         switch (q)
         {
             case 1:
             {
-                var start = "2025-01-01";
+                var start = "2023-01-01";
                 var end = "2025-12-31";
                 var query = db.Orders
-                    .Where(o => o.CustomerEmail == "alice@example.com"
-                             && string.Compare(o.OrderDate!, start) >= 0
-                             && string.Compare(o.OrderDate!, end)   <  0)
+                    .Where(o => o.CustomerEmail == "customer008@example.com"
+                                && string.Compare(o.OrderDate!, start) >= 0
+                                && string.Compare(o.OrderDate!, end) < 0)
                     .Select(o => new { o.OrderId, o.OrderDate, o.OrderTotal });
 
                 var count = await query.CountAsync();
                 var sample = await query.Take(5).ToListAsync();
-                return (count, ToJson(sample),
+                return ("Orders by CustomerEmail + date (string range)", count, ToJson(sample),
                     "SELECT OrderId, OrderDate, OrderTotal FROM Orders WHERE CustomerEmail='alice@example.com' AND OrderDate>='2025-01-01' AND OrderDate<'2025-12-31'");
             }
 
             case 2:
             {
                 var query = from r in db.Reviews
-                            join b in db.Books on r.BookTitle equals b.Title
-                            where r.Rating >= 4
-                            select new { r.ReviewId, b.Isbn, b.Title, r.Rating };
+                    join b in db.Books on r.BookTitle equals b.Title
+                    where r.Rating >= 4
+                    select new { r.ReviewId, b.Isbn, b.Title, r.Rating };
                 var count = await query.CountAsync();
                 var sample = await query.Take(5).ToListAsync();
-                return (count, ToJson(sample),
+                return ("Reviews ↔ Books by Title join", count, ToJson(sample),
                     "SELECT r.ReviewId, b.ISBN, b.Title, r.Rating FROM Reviews r JOIN Books b ON b.Title=r.BookTitle WHERE r.Rating>=4");
             }
 
             case 3:
             {
                 var query = from o in db.Orders
-                            join ol in db.OrderLines on o.OrderId equals ol.OrderId
-                            where o.OrderStatus == "Completed"
-                            select new { o.OrderId, ol.BookTitle, ol.Quantity, ol.UnitPrice };
+                    join ol in db.OrderLines on o.OrderId equals ol.OrderId
+                    where o.OrderStatus == "Completed"
+                    select new { o.OrderId, ol.BookTitle, ol.Quantity, ol.UnitPrice };
                 var count = await query.CountAsync();
                 var sample = await query.Take(5).ToListAsync();
-                return (count, ToJson(sample),
+                return ("Orders ↔ OrderLines by OrderId (missing index)", count, ToJson(sample),
                     "SELECT o.OrderId, ol.BookTitle, ol.Quantity, ol.UnitPrice FROM Orders o JOIN OrderLines ol ON ol.OrderId=o.OrderId WHERE o.OrderStatus='Completed'");
             }
 
             case 4:
             {
                 var query = db.Inventories
-                    .Where(i => i.BookIsbn == "978-1-4028-9462-6")
+                    .Where(i => i.BookIsbn == "978-1-4028-0009-9")
                     .Select(i => new { i.WarehouseCode, i.BookIsbn, i.QuantityOnHand });
                 var count = await query.CountAsync();
                 var sample = await query.Take(5).ToListAsync();
-                return (count, ToJson(sample),
+                return ("Inventory by BookISBN (string composite key)", count, ToJson(sample),
                     "SELECT WarehouseCode, BookISBN, QuantityOnHand FROM Inventory WHERE BookISBN='978-1-4028-9462-6'");
             }
 
@@ -143,7 +144,7 @@ public class CompareModel(BadBookStoreContext db) : PageModel
                     .Select(b => new { b.Isbn, b.Title, b.CategoryCsv });
                 var count = await query.CountAsync();
                 var sample = await query.Take(5).ToListAsync();
-                return (count, ToJson(sample),
+                return ("CategoryCsv LIKE scans", count, ToJson(sample),
                     "SELECT ISBN, Title FROM Books WHERE CategoryCsv LIKE patterns around 'Programming'");
             }
 
@@ -154,7 +155,7 @@ public class CompareModel(BadBookStoreContext db) : PageModel
                     .Select(a => new { a.ActivityId, a.HappenedAt, a.Actor, a.Action });
                 var count = await query.CountAsync();
                 var sample = await query.Take(10).ToListAsync();
-                return (count, ToJson(sample),
+                return ("ActivityLog sort by string “date”", count, ToJson(sample),
                     "SELECT TOP(10) * FROM ActivityLog ORDER BY HappenedAt DESC");
             }
 
@@ -165,8 +166,8 @@ public class CompareModel(BadBookStoreContext db) : PageModel
                     .Where(ol => ol.OrderId == demoOrderId)
                     .Select(ol => (ol.UnitPrice ?? 0) * (ol.Quantity ?? 0));
                 var sum = await query.SumAsync();
-                var cnt = await db.OrderLines.CountAsync(ol => ol.OrderId == demoOrderId);
-                return (cnt, ToJson(new { OrderId = demoOrderId, ComputedSum = sum }),
+                var count = await db.OrderLines.CountAsync(ol => ol.OrderId == demoOrderId);
+                return ("FLOAT money math rounding", count, ToJson(new { OrderId = demoOrderId, ComputedSum = sum }),
                     "SELECT SUM(UnitPrice * Quantity) FROM OrderLines WHERE OrderId=12345");
             }
 
@@ -177,12 +178,12 @@ public class CompareModel(BadBookStoreContext db) : PageModel
                     .Select(o => new { o.OrderId, o.Meta });
                 var count = await query.CountAsync();
                 var sample = await query.Take(5).ToListAsync();
-                return (count, ToJson(sample),
+                return ("JSON-ish LIKE in Orders.Meta", count, ToJson(sample),
                     "SELECT OrderId FROM Orders WHERE Meta LIKE '%{\"source\":\"mobile\"}%'");
             }
         }
 
-        return (0, "[]", "");
+        return ("", 0, "[]", "");
     }
 
     private static string ToJson(object o) =>
@@ -194,7 +195,9 @@ public class CompareModel(BadBookStoreContext db) : PageModel
         {
             // EF can't handle GO; split on it
             var batches = System.Text.RegularExpressions.Regex
-                .Split(sql, @"^\s*GO\s*$", System.Text.RegularExpressions.RegexOptions.Multiline | System.Text.RegularExpressions.RegexOptions.IgnoreCase)
+                .Split(sql, @"^\s*GO\s*$",
+                    System.Text.RegularExpressions.RegexOptions.Multiline |
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase)
                 .Select(b => b.Trim())
                 .Where(b => !string.IsNullOrWhiteSpace(b));
 
@@ -209,6 +212,7 @@ public class CompareModel(BadBookStoreContext db) : PageModel
 
     public record CompareResult(
         int Q,
+        string QueryName,
         long BaselineMs,
         long FixedMs,
         int Count,

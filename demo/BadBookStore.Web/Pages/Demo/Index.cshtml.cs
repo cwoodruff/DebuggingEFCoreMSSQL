@@ -10,8 +10,7 @@ namespace BadBookStore.Web.Pages.Demo;
 
 public class IndexModel(BadBookStoreContext db) : PageModel
 {
-    [BindProperty(SupportsGet = true)]
-    public int q { get; set; } = 1;
+    [BindProperty(SupportsGet = true)] public int q { get; set; } = 1;
 
     public bool FixesApplied { get; private set; }
     public string Title { get; private set; } = "";
@@ -23,7 +22,7 @@ public class IndexModel(BadBookStoreContext db) : PageModel
     public async Task OnGetAsync()
     {
         FixesApplied = await AreFixesAppliedAsync();
-        
+
         var sw = Stopwatch.StartNew();
 
         switch (q)
@@ -32,41 +31,44 @@ public class IndexModel(BadBookStoreContext db) : PageModel
                 Title = "Q1: Orders by CustomerEmail + string date range";
                 // String compare + missing index on CustomerEmail
                 var q1Start = "2023-01-01";
-                var q1End   = "2025-12-31";
+                var q1End = "2025-12-31";
                 var q1 = db.Orders
                     .Where(o => o.CustomerEmail == "customer008@example.com"
-                             && string.Compare(o.OrderDate!, q1Start) >= 0
-                             && string.Compare(o.OrderDate!, q1End)   <  0
-                             && o.OrderStatus == "Completed")
+                                && string.Compare(o.OrderDate!, q1Start) >= 0
+                                && string.Compare(o.OrderDate!, q1End) < 0
+                                && o.OrderStatus == "Completed")
                     .Select(o => new { o.OrderId, o.OrderDate, o.OrderTotal });
 
                 Count = await q1.CountAsync();
                 Sample = await q1.Take(15).ToListAsync();
-                SqlShape = "SELECT OrderId, OrderDate, OrderTotal FROM Orders WHERE CustomerEmail = N'customer008@example.com' AND OrderDate >= N'2023-01-01' AND OrderDate < N'2025-12-31'";
+                SqlShape =
+                    "SELECT OrderId, OrderDate, OrderTotal FROM Orders WHERE CustomerEmail = N'customer008@example.com' AND OrderDate >= N'2023-01-01' AND OrderDate < N'2025-12-31'";
                 break;
 
             case 2:
                 Title = "Q2: Reviews JOIN Books by Title (wide, non-unique)";
                 var q2 = from r in db.Reviews
-                         join b in db.Books on r.BookTitle equals b.Title
-                         where r.Rating >= 4
-                         select new { r.ReviewId, b.Isbn, b.Title, r.Rating };
+                    join b in db.Books on r.BookTitle equals b.Title
+                    where r.Rating >= 4
+                    select new { r.ReviewId, b.Isbn, b.Title, r.Rating };
 
                 Count = await q2.CountAsync();
                 Sample = await q2.Take(15).ToListAsync();
-                SqlShape = "SELECT r.ReviewId, b.ISBN, b.Title, r.Rating FROM Reviews r JOIN Books b ON b.Title = r.BookTitle WHERE r.Rating >= 4";
+                SqlShape =
+                    "SELECT r.ReviewId, b.ISBN, b.Title, r.Rating FROM Reviews r JOIN Books b ON b.Title = r.BookTitle WHERE r.Rating >= 4";
                 break;
 
             case 3:
                 Title = "Q3: Orders ↔ OrderLines (missing IX on OrderLines(OrderId))";
                 var q3 = from o in db.Orders
-                         join ol in db.OrderLines on o.OrderId equals ol.OrderId
-                         where o.OrderStatus == "Completed"
-                         select new { o.OrderId, ol.BookTitle, ol.Quantity, ol.UnitPrice };
+                    join ol in db.OrderLines on o.OrderId equals ol.OrderId
+                    where o.OrderStatus == "Completed"
+                    select new { o.OrderId, ol.BookTitle, ol.Quantity, ol.UnitPrice };
 
                 Count = await q3.CountAsync();
                 Sample = await q3.Take(15).ToListAsync();
-                SqlShape = "SELECT o.OrderId, ol.BookTitle, ol.Quantity, ol.UnitPrice FROM Orders o JOIN OrderLines ol ON ol.OrderId = o.OrderId WHERE o.OrderStatus = N'Completed'";
+                SqlShape =
+                    "SELECT o.OrderId, ol.BookTitle, ol.Quantity, ol.UnitPrice FROM Orders o JOIN OrderLines ol ON ol.OrderId = o.OrderId WHERE o.OrderStatus = N'Completed'";
                 break;
 
             case 4:
@@ -77,7 +79,8 @@ public class IndexModel(BadBookStoreContext db) : PageModel
 
                 Count = await q4.CountAsync();
                 Sample = await q4.Take(15).ToListAsync();
-                SqlShape = "SELECT WarehouseCode, BookISBN, QuantityOnHand FROM Inventory WHERE BookISBN = N'978-1-4028-0009-9'";
+                SqlShape =
+                    "SELECT WarehouseCode, BookISBN, QuantityOnHand FROM Inventory WHERE BookISBN = N'978-1-4028-0009-9'";
                 break;
 
             case 5:
@@ -139,7 +142,7 @@ public class IndexModel(BadBookStoreContext db) : PageModel
         sw.Stop();
         ElapsedMs = sw.ElapsedMilliseconds;
     }
-    
+
     private async Task<bool> AreFixesAppliedAsync()
     {
         // We consider “fixes applied” if the computed column OrderDate_dt exists.

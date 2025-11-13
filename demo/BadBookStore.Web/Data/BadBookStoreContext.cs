@@ -43,7 +43,7 @@ public partial class BadBookStoreContext : DbContext
     public virtual DbSet<Review> Reviews { get; set; }
 
     public virtual DbSet<Shipment> Shipments { get; set; }
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ActivityLog>(entity =>

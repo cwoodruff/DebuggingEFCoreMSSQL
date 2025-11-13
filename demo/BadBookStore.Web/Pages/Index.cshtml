@@ -4,7 +4,28 @@
     ViewData["Title"] = "BadBookStore Demo";
 }
 
-<h1>BadBookStore EF Core 9 – Slow-on-purpose queries</h1>
+<h1>BadBookStore EF Core 10 – Slow Queries Demo</h1>
+
+<div style="margin:.25rem 0 1rem 0;">
+    @if (Model.FixesApplied)
+    {
+        <span style="
+          display:inline-block;padding:.25rem .5rem;border-radius:.5rem;
+          background:#e6ffed;border:1px solid #2ecc71;color:#1f7a3a;
+          font-size:.85rem;font-weight:600;">
+            Fixes: Applied
+        </span>
+    }
+    else
+    {
+        <span style="
+          display:inline-block;padding:.25rem .5rem;border-radius:.5rem;
+          background:#fff5f5;border:1px solid #ff6b6b;color:#8a1c1c;
+          font-size:.85rem;font-weight:600;">
+            Fixes: Not Applied
+        </span>
+    }
+</div>
 
 <p>Use the links below to run each demonstration query and view timing + sample results.</p>
 
@@ -18,3 +39,5 @@
     <li><a asp-page="/Demo/Index" asp-route-q="7">Q7: FLOAT money math rounding</a></li>
     <li><a asp-page="/Demo/Index" asp-route-q="8">Q8: JSON-ish LIKE in Orders.Meta</a></li>
 </ol>
+
+Look at <a asp-page="/Admin/Compare">Compare Mode</a>.
