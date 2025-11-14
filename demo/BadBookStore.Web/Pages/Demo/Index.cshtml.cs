@@ -42,7 +42,7 @@ public class IndexModel(BadBookStoreContext db) : PageModel
                 Count = await q1.CountAsync();
                 Sample = await q1.Take(15).ToListAsync();
                 SqlShape =
-                    "SELECT OrderId, OrderDate, OrderTotal FROM Orders WHERE CustomerEmail = N'customer008@example.com' AND OrderDate >= N'2023-01-01' AND OrderDate < N'2025-12-31'";
+                    "SELECT OrderId, OrderDate, OrderTotal FROM Orders WHERE CustomerEmail = N'customer008@example.com' AND OrderDate >= N'2023-01-01' AND OrderDate < N'2025-12-31' AND o.OrderStatus = 'Completed'";
                 break;
 
             case 2:

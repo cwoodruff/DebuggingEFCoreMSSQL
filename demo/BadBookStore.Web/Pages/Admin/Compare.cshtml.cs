@@ -94,7 +94,7 @@ public class CompareModel(BadBookStoreContext db) : PageModel
                 var count = await query.CountAsync();
                 var sample = await query.Take(5).ToListAsync();
                 return ("Orders by CustomerEmail + date (string range)", count, ToJson(sample),
-                    "SELECT OrderId, OrderDate, OrderTotal FROM Orders WHERE CustomerEmail='alice@example.com' AND OrderDate>='2025-01-01' AND OrderDate<'2025-12-31'");
+                    "SELECT OrderId, OrderDate, OrderTotal FROM Orders WHERE CustomerEmail='customer008@example.com' AND OrderDate>='2025-01-01' AND OrderDate<'2025-12-31'");
             }
 
             case 2:
@@ -129,7 +129,7 @@ public class CompareModel(BadBookStoreContext db) : PageModel
                 var count = await query.CountAsync();
                 var sample = await query.Take(5).ToListAsync();
                 return ("Inventory by BookISBN (string composite key)", count, ToJson(sample),
-                    "SELECT WarehouseCode, BookISBN, QuantityOnHand FROM Inventory WHERE BookISBN='978-1-4028-9462-6'");
+                    "SELECT WarehouseCode, BookISBN, QuantityOnHand FROM Inventory WHERE BookISBN='978-1-4028-0009-9'");
             }
 
             case 5:
